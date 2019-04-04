@@ -73,7 +73,7 @@ trait MetadataTrait
     /**
      * The time this resource was created.
      *
-     * @return \DateTimeInterface}null
+     * @return \DateTimeInterface|null
      */
     public function getCreatedAt()
     {
