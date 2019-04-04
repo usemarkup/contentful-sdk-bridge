@@ -3,7 +3,7 @@
 <phpunit bootstrap="./vendor/autoload.php" colors="true">
 
     <testsuites>
-        <testsuite name="Markup Contentful SDK Bridge test suite">
+        <testsuite name="Markup Contentful SDK Bridge">
             <directory suffix="Test.php">./tests</directory>
         </testsuite>
     </testsuites>
