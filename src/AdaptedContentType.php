@@ -39,7 +39,7 @@ class AdaptedContentType implements ContentTypeInterface
      */
     public function getDescription()
     {
-        return $this->sdkContentType->getDescription();
+        return $this->sdkContentType->getDescription() ?: '';
     }
 
     /**

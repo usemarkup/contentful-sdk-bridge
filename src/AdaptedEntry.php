@@ -53,6 +53,7 @@ class AdaptedEntry implements MarkupEntry
     public function getFields()
     {
         return $this->sdkEntry->all($this->locale, false);
+
     }
 
     /**
@@ -68,5 +69,15 @@ class AdaptedEntry implements MarkupEntry
     protected function getMetadata(): AdaptedEntryMetadata
     {
         return $this->metadata;
+    }
+
+    /**
+     * The single locale of this resource, if there is one.
+     *
+     * @return string|null
+     */
+    public function getLocale()
+    {
+        return $this->locale;
     }
 }
