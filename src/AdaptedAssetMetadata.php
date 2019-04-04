@@ -3,17 +3,15 @@ declare(strict_types=1);
 
 namespace Markup\ContentfulSdkBridge;
 
-use Contentful\Delivery\SystemProperties\Entry;
-use Markup\Contentful\ContentTypeInterface;
+use Contentful\Delivery\SystemProperties\Asset;
 use Markup\Contentful\MetadataInterface;
-use Markup\Contentful\SpaceInterface;
 use Markup\ContentfulSdkBridge\Component\ContentTypeTrait;
 use Markup\ContentfulSdkBridge\Component\EditedTrait;
 use Markup\ContentfulSdkBridge\Component\RevisionTrait;
 use Markup\ContentfulSdkBridge\Component\SpaceTrait;
 use Markup\ContentfulSdkBridge\Component\SystemPropertiesTrait;
 
-class AdaptedEntryMetadata implements MetadataInterface
+class AdaptedAssetMetadata implements MetadataInterface
 {
     use ContentTypeTrait;
     use EditedTrait;
@@ -22,18 +20,18 @@ class AdaptedEntryMetadata implements MetadataInterface
     use SystemPropertiesTrait;
 
     /**
-     * @var Entry
+     * @var Asset
      */
-    private $entrySys;
+    private $assetSys;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $locale;
 
-    public function __construct(Entry $entrySys, ?string $locale = null)
+    public function __construct(Asset $assetSys, string $locale)
     {
-        $this->entrySys = $entrySys;
+        $this->assetSys = $assetSys;
         $this->locale = $locale;
     }
 
@@ -59,7 +57,6 @@ class AdaptedEntryMetadata implements MetadataInterface
 
     protected function getSdkObject()
     {
-        return $this->entrySys;
+        return $this->assetSys;
     }
-
 }
