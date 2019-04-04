@@ -1,0 +1,28 @@
+language: php
+sudo: false
+dist: trusty
+group: edge
+php:
+    - 7.1
+    - 7.2
+    - 7.3
+
+matrix:
+    include:
+        - php: 7.1
+          env: deps=low
+
+env:
+    global:
+        - deps=no
+
+before_install:
+    - composer self-update
+
+install:
+    - if [ "$deps" = "no" ]; then composer --prefer-source install; fi;
+    - if [ "$deps" = "low" ]; then composer --prefer-source --prefer-lowest --prefer-stable update; fi
+
+script:
+    - vendor/bin/phpstan analyse -c phpstan.neon --level 7 .
+    - vendor/bin/phpunit
