@@ -4,12 +4,13 @@
     "type": "library",
     "require": {
         "php": "^7.1",
-        "markup/contentful": ">=0.12, <1.0",
+        "markup/contentful": "dev-master",
         "contentful/contentful": "^4"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",
-        "symfony/phpunit-bridge": "^4.2"
+        "symfony/phpunit-bridge": "^4.2",
+        "mockery/mockery": "^1.2"
     },
     "license": "MIT",
     "authors": [
@@ -17,5 +18,11 @@
             "name": "Douglas Greenshields",
             "email": "douglas@usemarkup.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "Markup\\ContentfulSdkBridge\\Tests\\": "tests/",
+            "Markup\\ContentfulSdkBridge\\": "src/"
+        }
+    }
 }
