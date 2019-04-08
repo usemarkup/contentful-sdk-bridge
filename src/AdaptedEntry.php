@@ -6,11 +6,13 @@ namespace Markup\ContentfulSdkBridge;
 use Contentful\Delivery\Resource\Entry as SdkEntry;
 use Markup\Contentful\DisallowArrayAccessMutationTrait;
 use Markup\Contentful\EntryInterface as MarkupEntry;
+use Markup\Contentful\EntryUnknownMethodTrait;
 use Markup\ContentfulSdkBridge\Component\MetadataTrait;
 
 class AdaptedEntry implements MarkupEntry
 {
     use DisallowArrayAccessMutationTrait;
+    use EntryUnknownMethodTrait;
     use MetadataTrait;
 
     /**
