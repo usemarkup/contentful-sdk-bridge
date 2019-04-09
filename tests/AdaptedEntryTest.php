@@ -109,6 +109,24 @@ class AdaptedEntryTest extends MockeryTestCase
         $this->assertInstanceOf(LinkInterface::class, $this->adapted->getField($fieldName));
     }
 
+    public function testAdaptsArrayOfLinks()
+    {
+        $links = [
+            m::mock(Link::class),
+            m::mock(Link::class),
+        ];
+        $fieldName = 'field';
+        $this->sdkEntry
+            ->shouldReceive('get')
+            ->with($fieldName, $this->locale, false)
+            ->andReturn($links);
+        $this->setUpFieldOnSdkEntry($this->sdkEntry);
+        $output = $this->adapted->getField($fieldName);
+        $this->assertIsArray($output);
+        $this->assertCount(2, $output);
+        $this->assertContainsOnlyInstancesOf(LinkInterface::class, $output);
+    }
+
     private function setUpFieldOnSdkEntry(m\MockInterface $entry)
     {
         $field = m::mock(Field::class)
