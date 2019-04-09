@@ -7,7 +7,9 @@ use Contentful\Core\Api\Link;
 use Contentful\Delivery\Resource\ContentType\Field;
 use Contentful\Delivery\Resource\Entry;
 use Markup\Contentful\EntryInterface as MarkupEntry;
+use Markup\Contentful\EntryInterface;
 use Markup\Contentful\LinkInterface;
+use Markup\Contentful\ResourceEnvelopeInterface;
 use Markup\ContentfulSdkBridge\AdaptedEntry;
 use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -18,6 +20,11 @@ class AdaptedEntryTest extends MockeryTestCase
      * @var Entry|m\MockInterface
      */
     private $sdkEntry;
+
+    /**
+     * @var ResourceEnvelopeInterface|m\MockInterface
+     */
+    private $resourceEnvelope;
 
     /**
      * @var string
@@ -37,9 +44,15 @@ class AdaptedEntryTest extends MockeryTestCase
     protected function setUp()
     {
         $this->sdkEntry = m::spy(Entry::class);
+        $this->resourceEnvelope = m::mock(ResourceEnvelopeInterface::class);
         $this->locale = 'en_GB';
         $this->space = 'i_am_a_space';
-        $this->adapted = new AdaptedEntry($this->sdkEntry, $this->locale, $this->space);
+        $this->adapted = new AdaptedEntry(
+            $this->sdkEntry,
+            $this->resourceEnvelope,
+            $this->locale,
+            $this->space
+        );
     }
 
     public function testIsMarkupEntry()
@@ -99,32 +112,54 @@ class AdaptedEntryTest extends MockeryTestCase
 
     public function testAdaptsLink()
     {
-        $link = m::mock(Link::class);
+        $linkedId = '456';
+        $link = m::mock(Link::class)
+            ->shouldReceive('getLinkType')
+            ->andReturn('Entry')
+            ->getMock()
+            ->shouldReceive('getId')
+            ->andReturn($linkedId)
+            ->getMock();
         $fieldName = 'field';
         $this->sdkEntry
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($link);
+        $linkedEntry = m::mock(EntryInterface::class);
+        $this->resourceEnvelope
+            ->shouldReceive('findEntry')
+            ->with($linkedId, $this->locale)
+            ->andReturn($linkedEntry);
         $this->setUpFieldOnSdkEntry($this->sdkEntry);
-        $this->assertInstanceOf(LinkInterface::class, $this->adapted->getField($fieldName));
+        $this->assertSame($linkedEntry, $this->adapted->getField($fieldName));
     }
 
     public function testAdaptsArrayOfLinks()
     {
-        $links = [
-            m::mock(Link::class),
-            m::mock(Link::class),
-        ];
+        $linkedId = '567';
+        $link = m::mock(Link::class)
+            ->shouldReceive('getLinkType')
+            ->andReturn('Entry')
+            ->getMock()
+            ->shouldReceive('getId')
+            ->andReturn($linkedId)
+            ->getMock();
+        $links = [$link, $link];
         $fieldName = 'field';
         $this->sdkEntry
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($links);
+        $linkedEntry = m::mock(EntryInterface::class);
+        $this->resourceEnvelope
+            ->shouldReceive('findEntry')
+            ->with($linkedId, $this->locale)
+            ->andReturn($linkedEntry);
         $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $output = $this->adapted->getField($fieldName);
         $this->assertIsArray($output);
         $this->assertCount(2, $output);
-        $this->assertContainsOnlyInstancesOf(LinkInterface::class, $output);
+        $this->assertContainsOnlyInstancesOf(EntryInterface::class, $output);
     }
 
     private function setUpFieldOnSdkEntry(m\MockInterface $entry)
