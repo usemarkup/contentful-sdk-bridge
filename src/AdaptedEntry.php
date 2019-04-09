@@ -65,7 +65,11 @@ class AdaptedEntry implements MarkupEntry
      */
     public function getField($key)
     {
-        return $this->sdkEntry->get($key, $this->locale, false);
+        return $this->sdkEntry->get(
+            $key,
+            ($this->isFieldLocalized($key)) ? $this->locale : null,
+            false
+        );
     }
 
     protected function getMetadata(): AdaptedEntryMetadata
@@ -81,5 +85,18 @@ class AdaptedEntry implements MarkupEntry
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    private function isFieldLocalized($key): bool
+    {
+        $field = $this->sdkEntry
+            ->getSystemProperties()
+            ->getContentType()
+            ->getField($key, true);
+        if (!$field) {
+            return false;
+        }
+
+        return $field->isLocalized();
     }
 }

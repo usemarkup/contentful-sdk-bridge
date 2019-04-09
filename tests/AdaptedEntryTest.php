@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Markup\ContentfulSdkBridge\Tests;
 
+use Contentful\Delivery\Resource\ContentType\Field;
 use Contentful\Delivery\Resource\Entry;
 use Markup\Contentful\EntryInterface as MarkupEntry;
 use Markup\ContentfulSdkBridge\AdaptedEntry;
@@ -61,6 +62,7 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($fieldValue);
+        $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $this->assertEquals($fieldValue, $this->adapted->getField($fieldName));
     }
 
@@ -83,6 +85,18 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($fieldValue);
+        $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $this->assertEquals($fieldValue, $this->adapted[$fieldName]);
+    }
+
+    private function setUpFieldOnSdkEntry(m\MockInterface $entry)
+    {
+        $field = m::mock(Field::class)
+            ->shouldReceive('isLocalized')
+            ->andReturnTrue()
+            ->getMock();
+        $entry
+            ->shouldReceive('getSystemProperties->getContentType->getField')
+            ->andReturn($field);
     }
 }
