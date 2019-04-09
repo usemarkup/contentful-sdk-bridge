@@ -37,6 +37,11 @@ class AdaptedEntryTest extends MockeryTestCase
     private $space;
 
     /**
+     * @var callable
+     */
+    private $resolveLinkFunction;
+
+    /**
      * @var AdaptedEntry
      */
     private $adapted;
@@ -47,12 +52,22 @@ class AdaptedEntryTest extends MockeryTestCase
         $this->resourceEnvelope = m::mock(ResourceEnvelopeInterface::class);
         $this->locale = 'en_GB';
         $this->space = 'i_am_a_space';
+        $this->resolveLinkFunction = function (LinkInterface $link, $locale = null) {
+            return m::mock(EntryInterface::class);
+        };
         $this->adapted = new AdaptedEntry(
             $this->sdkEntry,
-            $this->resourceEnvelope,
             $this->locale,
-            $this->space
+            $this->space,
+            $this->resolveLinkFunction
         );
+        $field = m::mock(Field::class)
+            ->shouldReceive('isLocalized')
+            ->andReturnTrue()
+            ->getMock();
+        $this->sdkEntry
+            ->shouldReceive('getSystemProperties->getContentType->getField')
+            ->andReturn($field);
     }
 
     public function testIsMarkupEntry()
@@ -83,7 +98,6 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($fieldValue);
-        $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $this->assertEquals($fieldValue, $this->adapted->getField($fieldName));
     }
 
@@ -106,7 +120,6 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($fieldValue);
-        $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $this->assertEquals($fieldValue, $this->adapted[$fieldName]);
     }
 
@@ -125,13 +138,7 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($link);
-        $linkedEntry = m::mock(EntryInterface::class);
-        $this->resourceEnvelope
-            ->shouldReceive('findEntry')
-            ->with($linkedId, $this->locale)
-            ->andReturn($linkedEntry);
-        $this->setUpFieldOnSdkEntry($this->sdkEntry);
-        $this->assertSame($linkedEntry, $this->adapted->getField($fieldName));
+        $this->assertInstanceOf(EntryInterface::class, $this->adapted->getField($fieldName));
     }
 
     public function testAdaptsArrayOfLinks()
@@ -150,26 +157,9 @@ class AdaptedEntryTest extends MockeryTestCase
             ->shouldReceive('get')
             ->with($fieldName, $this->locale, false)
             ->andReturn($links);
-        $linkedEntry = m::mock(EntryInterface::class);
-        $this->resourceEnvelope
-            ->shouldReceive('findEntry')
-            ->with($linkedId, $this->locale)
-            ->andReturn($linkedEntry);
-        $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $output = $this->adapted->getField($fieldName);
         $this->assertIsArray($output);
         $this->assertCount(2, $output);
         $this->assertContainsOnlyInstancesOf(EntryInterface::class, $output);
-    }
-
-    private function setUpFieldOnSdkEntry(m\MockInterface $entry)
-    {
-        $field = m::mock(Field::class)
-            ->shouldReceive('isLocalized')
-            ->andReturnTrue()
-            ->getMock();
-        $entry
-            ->shouldReceive('getSystemProperties->getContentType->getField')
-            ->andReturn($field);
     }
 }

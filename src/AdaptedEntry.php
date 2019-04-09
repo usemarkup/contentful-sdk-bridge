@@ -9,7 +9,6 @@ use Markup\Contentful\DisallowArrayAccessMutationTrait;
 use Markup\Contentful\EntryInterface as MarkupEntry;
 use Markup\Contentful\EntryUnknownMethodTrait;
 use Markup\Contentful\LinkInterface;
-use Markup\Contentful\ResourceEnvelopeInterface;
 use Markup\ContentfulSdkBridge\Component\MetadataTrait;
 
 class AdaptedEntry implements MarkupEntry
@@ -24,11 +23,6 @@ class AdaptedEntry implements MarkupEntry
     private $sdkEntry;
 
     /**
-     * @var ResourceEnvelopeInterface
-     */
-    private $resourceEnvelope;
-
-    /**
      * @var string
      */
     private $locale;
@@ -39,20 +33,25 @@ class AdaptedEntry implements MarkupEntry
     private $space;
 
     /**
+     * @var callable|null
+     */
+    private $resolveLinkFunction;
+
+    /**
      * @var AdaptedEntryMetadata
      */
     private $metadata;
 
     public function __construct(
         SdkEntry $sdkEntry,
-        ResourceEnvelopeInterface $resourceEnvelope,
         string $locale,
-        string $space
+        string $space,
+        ?callable $resolveLinkFunction = null
     ) {
         $this->sdkEntry = $sdkEntry;
-        $this->resourceEnvelope = $resourceEnvelope;
         $this->locale = $locale;
         $this->space = $space;
+        $this->resolveLinkFunction = $resolveLinkFunction;
         $this->metadata = new AdaptedEntryMetadata($sdkEntry->getSystemProperties(), $locale);
     }
 
@@ -143,8 +142,10 @@ class AdaptedEntry implements MarkupEntry
 
     private function resolveLink(LinkInterface $link)
     {
-        return ($link->getLinkType() === 'Asset')
-            ? $this->resourceEnvelope->findAsset($link->getId(), $this->locale)
-            : $this->resourceEnvelope->findEntry($link->getId(), $this->locale);
+        if (null === $this->resolveLinkFunction) {
+            return null;
+        }
+
+        return call_user_func($this->resolveLinkFunction, $link, $this->locale);
     }
 }
