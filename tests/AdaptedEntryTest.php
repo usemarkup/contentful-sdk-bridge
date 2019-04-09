@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Markup\ContentfulSdkBridge\Tests;
 
+use Contentful\Core\Api\Link;
 use Contentful\Delivery\Resource\ContentType\Field;
 use Contentful\Delivery\Resource\Entry;
 use Markup\Contentful\EntryInterface as MarkupEntry;
+use Markup\Contentful\LinkInterface;
 use Markup\ContentfulSdkBridge\AdaptedEntry;
 use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -23,6 +25,11 @@ class AdaptedEntryTest extends MockeryTestCase
     private $locale;
 
     /**
+     * @var string
+     */
+    private $space;
+
+    /**
      * @var AdaptedEntry
      */
     private $adapted;
@@ -31,7 +38,8 @@ class AdaptedEntryTest extends MockeryTestCase
     {
         $this->sdkEntry = m::spy(Entry::class);
         $this->locale = 'en_GB';
-        $this->adapted = new AdaptedEntry($this->sdkEntry, $this->locale);
+        $this->space = 'i_am_a_space';
+        $this->adapted = new AdaptedEntry($this->sdkEntry, $this->locale, $this->space);
     }
 
     public function testIsMarkupEntry()
@@ -87,6 +95,18 @@ class AdaptedEntryTest extends MockeryTestCase
             ->andReturn($fieldValue);
         $this->setUpFieldOnSdkEntry($this->sdkEntry);
         $this->assertEquals($fieldValue, $this->adapted[$fieldName]);
+    }
+
+    public function testAdaptsLink()
+    {
+        $link = m::mock(Link::class);
+        $fieldName = 'field';
+        $this->sdkEntry
+            ->shouldReceive('get')
+            ->with($fieldName, $this->locale, false)
+            ->andReturn($link);
+        $this->setUpFieldOnSdkEntry($this->sdkEntry);
+        $this->assertInstanceOf(LinkInterface::class, $this->adapted->getField($fieldName));
     }
 
     private function setUpFieldOnSdkEntry(m\MockInterface $entry)

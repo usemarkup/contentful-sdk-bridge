@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Markup\ContentfulSdkBridge;
 
+use Contentful\Core\Api\Link;
 use Contentful\Delivery\Resource\Entry as SdkEntry;
 use Markup\Contentful\DisallowArrayAccessMutationTrait;
 use Markup\Contentful\EntryInterface as MarkupEntry;
@@ -26,14 +27,20 @@ class AdaptedEntry implements MarkupEntry
     private $locale;
 
     /**
+     * @var string
+     */
+    private $space;
+
+    /**
      * @var AdaptedEntryMetadata
      */
     private $metadata;
 
-    public function __construct(SdkEntry $sdkEntry, string $locale)
+    public function __construct(SdkEntry $sdkEntry, string $locale, string $space)
     {
         $this->sdkEntry = $sdkEntry;
         $this->locale = $locale;
+        $this->space = $space;
         $this->metadata = new AdaptedEntryMetadata($sdkEntry->getSystemProperties(), $locale);
     }
 
@@ -65,11 +72,16 @@ class AdaptedEntry implements MarkupEntry
      */
     public function getField($key)
     {
-        return $this->sdkEntry->get(
+        $value = $this->sdkEntry->get(
             $key,
             ($this->isFieldLocalized($key)) ? $this->locale : null,
             false
         );
+        if ($value instanceof Link) {
+            return new AdaptedLink($value, $this->space);
+        }
+
+        return $value;
     }
 
     protected function getMetadata(): AdaptedEntryMetadata
