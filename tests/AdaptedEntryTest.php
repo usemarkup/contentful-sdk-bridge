@@ -6,6 +6,7 @@ namespace Markup\ContentfulSdkBridge\Tests;
 use Contentful\Core\Api\Link;
 use Contentful\Delivery\Resource\ContentType\Field;
 use Contentful\Delivery\Resource\Entry;
+use GuzzleHttp\Promise\FulfilledPromise;
 use Markup\Contentful\EntryInterface as MarkupEntry;
 use Markup\Contentful\EntryInterface;
 use Markup\Contentful\LinkInterface;
@@ -53,7 +54,7 @@ class AdaptedEntryTest extends MockeryTestCase
         $this->locale = 'en_GB';
         $this->space = 'i_am_a_space';
         $this->resolveLinkFunction = function (LinkInterface $link, $locale = null) {
-            return m::mock(EntryInterface::class);
+            return new FulfilledPromise(m::mock(EntryInterface::class));
         };
         $this->adapted = new AdaptedEntry(
             $this->sdkEntry,

@@ -5,6 +5,7 @@ namespace Markup\ContentfulSdkBridge;
 
 use Contentful\Core\Api\Link;
 use Contentful\Delivery\Resource\Entry as SdkEntry;
+use GuzzleHttp\Promise\PromiseInterface;
 use Markup\Contentful\DisallowArrayAccessMutationTrait;
 use Markup\Contentful\EntryInterface as MarkupEntry;
 use Markup\Contentful\EntryUnknownMethodTrait;
@@ -146,6 +147,9 @@ class AdaptedEntry implements MarkupEntry
             return null;
         }
 
-        return call_user_func($this->resolveLinkFunction, $link, $this->locale);
+        /** @var PromiseInterface $promise */
+        $promise = call_user_func($this->resolveLinkFunction, $link, $this->locale);
+
+        return $promise->wait();
     }
 }
