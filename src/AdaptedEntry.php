@@ -77,11 +77,8 @@ class AdaptedEntry implements MarkupEntry
             ($this->isFieldLocalized($key)) ? $this->locale : null,
             false
         );
-        if ($value instanceof Link) {
-            return new AdaptedLink($value, $this->space);
-        }
 
-        return $value;
+        return $this->emitFieldValue($value);
     }
 
     protected function getMetadata(): AdaptedEntryMetadata
@@ -110,5 +107,25 @@ class AdaptedEntry implements MarkupEntry
         }
 
         return $field->isLocalized();
+    }
+
+    /**
+     * Ensures a field value gets adapted to links where they exist.
+     */
+    private function emitFieldValue($value)
+    {
+        if (is_array($value)) {
+            return array_map(
+                function ($value) {
+                    return $this->emitFieldValue($value);
+                },
+                $value
+            );
+        }
+        if ($value instanceof Link) {
+            return new AdaptedLink($value, $this->space);
+        }
+
+        return $value;
     }
 }
