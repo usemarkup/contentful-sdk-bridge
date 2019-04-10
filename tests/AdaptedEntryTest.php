@@ -102,6 +102,16 @@ class AdaptedEntryTest extends MockeryTestCase
         $this->assertEquals($fieldValue, $this->adapted->getField($fieldName));
     }
 
+    public function testGetFieldReturnsNullWhenInvalidArgumentExceptionThrown()
+    {
+        $fieldName = 'field';
+        $this->sdkEntry
+            ->shouldReceive('get')
+            ->with($fieldName, $this->locale, false)
+            ->andThrow(new \InvalidArgumentException());
+        $this->assertNull($this->adapted->getField($fieldName));
+    }
+
     public function testOffsetExists()
     {
         $fieldName = 'field';

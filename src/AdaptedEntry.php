@@ -84,11 +84,15 @@ class AdaptedEntry implements MarkupEntry
      */
     public function getField($key)
     {
-        $value = $this->sdkEntry->get(
-            $key,
-            ($this->isFieldLocalized($key)) ? $this->locale : null,
-            false
-        );
+        try {
+            $value = $this->sdkEntry->get(
+                $key,
+                ($this->isFieldLocalized($key)) ? $this->locale : null,
+                false
+            );
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
 
         return $this->emitFieldValue($value);
     }
