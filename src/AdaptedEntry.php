@@ -58,7 +58,11 @@ class AdaptedEntry implements MarkupEntry
 
     public function offsetExists($offset)
     {
-        return $this->sdkEntry->has($offset, $this->locale, false);
+        return $this->sdkEntry->has(
+            $offset,
+            ($this->isFieldLocalized($offset)) ? $this->locale : null,
+            false
+        );
     }
 
     public function offsetGet($offset)
