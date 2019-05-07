@@ -81,16 +81,6 @@ class AdaptedEntryTest extends MockeryTestCase
         $this->assertEquals($this->locale, $this->adapted->getLocale());
     }
 
-    public function testGetFields()
-    {
-        $fields = ['this' => 'that', 'up' => 'down'];
-        $this->sdkEntry
-            ->shouldReceive('all')
-            ->with($this->locale, false)
-            ->andReturn($fields);
-        $this->assertEquals($fields, $this->adapted->getFields());
-    }
-
     public function testGetField()
     {
         $fieldName = 'field';

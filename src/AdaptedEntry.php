@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Markup\ContentfulSdkBridge;
 
 use Contentful\Core\Api\Link;
+use Contentful\Delivery\Resource\ContentType\Field;
 use Contentful\Delivery\Resource\Entry as SdkEntry;
 use GuzzleHttp\Promise\PromiseInterface;
 use Markup\Contentful\DisallowArrayAccessMutationTrait;
@@ -77,8 +78,14 @@ class AdaptedEntry implements MarkupEntry
      */
     public function getFields()
     {
-        return $this->sdkEntry->all($this->locale, false);
+        $fields = $this->sdkEntry->getContentType()->getFields();
 
+        return array_map(
+            function (Field $field) {
+                return $this->getField($field->getId());
+            },
+            $fields
+        );
     }
 
     /**
