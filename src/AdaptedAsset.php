@@ -26,14 +26,20 @@ class AdaptedAsset implements AssetInterface
     private $locale;
 
     /**
+     * @var string
+     */
+    private $space;
+
+    /**
      * @var AdaptedAssetMetadata
      */
     private $metadata;
 
-    public function __construct(Asset $asset, string $locale)
+    public function __construct(Asset $asset, string $locale, string $space)
     {
         $this->asset = $asset;
         $this->locale = $locale;
+        $this->space = $space;
         $this->metadata = new AdaptedAssetMetadata($asset->getSystemProperties(), $locale);
     }
 
@@ -195,6 +201,11 @@ class AdaptedAsset implements AssetInterface
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    public function getSpaceName(): string
+    {
+        return $this->space;
     }
 
     protected function getMetadata()
