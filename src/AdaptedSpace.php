@@ -139,4 +139,9 @@ class AdaptedSpace implements SpaceInterface
     {
         throw new \BadMethodCallException(__METHOD__.' not implemented');
     }
+
+    public function getSpaceName(): string
+    {
+        return $this->getName();
+    }
 }

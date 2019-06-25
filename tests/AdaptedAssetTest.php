@@ -26,6 +26,11 @@ class AdaptedAssetTest extends MockeryTestCase
     private $locale;
 
     /**
+     * @var string
+     */
+    private $space;
+
+    /**
      * @var AdaptedAsset
      */
     private $adapted;
@@ -34,7 +39,8 @@ class AdaptedAssetTest extends MockeryTestCase
     {
         $this->sdkAsset = m::spy(Asset::class);
         $this->locale = 'fr_FR';
-        $this->adapted = new AdaptedAsset($this->sdkAsset, $this->locale);
+        $this->space = 'eu';
+        $this->adapted = new AdaptedAsset($this->sdkAsset, $this->locale, $this->space);
     }
 
     public function testIsAsset()

@@ -19,4 +19,9 @@ trait SpaceTrait
     {
         return new AdaptedSpace($this->getSdkObject()->getSpace());
     }
+
+    public function getSpaceName(): string
+    {
+        return $this->getSdkObject()->getSpace()->getName();
+    }
 }

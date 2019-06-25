@@ -123,6 +123,11 @@ class AdaptedEntry implements MarkupEntry
         return $this->locale;
     }
 
+    public function getSpaceName(): string
+    {
+        return $this->space;
+    }
+
     private function isFieldLocalized($key): bool
     {
         $field = $this->sdkEntry
